@@ -5,8 +5,6 @@
 #include <float.h>
 #include <pthread.h>
 
-#define N 8192
-
 void merge(float *data, int l, int m, int r)
 {
   int first = l;
@@ -33,7 +31,7 @@ void merge(float *data, int l, int m, int r)
 
 void merge_sort(int num_of_elements, float *data)
 {
-  for (int k = 1; k < num_of_elements; k = 2 * k)    // ceil(log2(num_of_elements))
-    for (int l = 0; l < num_of_elements; l += 2 * k) // (num_of_elements + 2 * k - 1) / (2 * k)
+  for (int k = 1; k < num_of_elements; k = 2 * k)
+    for (int l = 0; l < num_of_elements; l += 2 * k)
       merge(data, l, fminf(l + k, num_of_elements), fminf(l + 2 * k, num_of_elements));
 }

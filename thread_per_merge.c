@@ -5,8 +5,6 @@
 #include <float.h>
 #include <pthread.h>
 
-#define N 8192
-
 typedef struct thread_args
 {
   float *data;

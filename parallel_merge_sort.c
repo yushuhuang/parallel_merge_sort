@@ -5,7 +5,6 @@
 #include <float.h>
 #include <pthread.h>
 
-#define N 8192
 #define num_of_threads 8
 
 typedef struct thread_args
