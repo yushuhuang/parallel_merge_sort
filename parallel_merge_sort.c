@@ -77,7 +77,7 @@ void *final_merge(void *args)
   return NULL;
 }
 
-void *merge_sort(void *args)
+void *sub_merge_sort(void *args)
 {
   float *data = ((thread_args *)args)->data;
   int start = ((thread_args *)args)->start;
@@ -96,7 +96,7 @@ void swap(float **a, float **b)
   *b = tmp;
 }
 
-int pthread_sort(int num_of_elements, float *data)
+void merge_sort(int num_of_elements, float *data)
 {
   int items = (num_of_elements + num_of_threads - 1) / num_of_threads;
   // set args
@@ -113,10 +113,15 @@ int pthread_sort(int num_of_elements, float *data)
   // Split into num_of_threads chunks of data and run in parallel
   pthread_t threads[num_of_threads];
   for (int i = 0; i < num_of_threads; i++)
-    pthread_create(&threads[i], NULL, *merge_sort, &args[i]);
+    pthread_create(&threads[i], NULL, *sub_merge_sort, &args[i]);
 
   for (int i = 0; i < num_of_threads; i++)
     pthread_join(threads[i], NULL);
+
+  // final merge
+  // for (int i = 1; i < num_of_threads; i = i * 2)
+  //   for (int l = 0; l < num_of_elements; l += 2 * i * items)
+  //     merge(l, fminf(l + i * items, num_of_elements), fminf(l + 2 * i * items, num_of_elements), data);
 
   // final merge in parallel
   int max_tasks = (num_of_threads + 1) / 2;
@@ -152,56 +157,4 @@ int pthread_sort(int num_of_elements, float *data)
   free(merge_threads);
   free(m_args);
   free(work);
-  return 0;
-}
-
-// Test
-void printArr(float *arr)
-{
-  for (int i = 0; i < N; i++)
-    printf("%.3f ", arr[i]);
-  printf("\n");
-}
-
-int compare_function(const void *a, const void *b)
-{
-  if (*((float *)a) < *((float *)b))
-    return -1;
-  else if (*((float *)a) > *((float *)b))
-    return 1;
-  else
-    return 0;
-}
-
-float float_rand()
-{
-  float scale = rand() / (float)RAND_MAX;
-  return -100 + scale * 200;
-}
-
-int main(void)
-{
-  float data[N];
-  for (int i = 0; i < N; i++)
-    data[i] = float_rand();
-  pthread_sort(N, data);
-
-  // Verify
-  float output_data[N];
-  memcpy(output_data, data, N * sizeof(float));
-  // printArr(output_data);
-  qsort(data, N, sizeof(float), compare_function);
-  // printArr(data);
-  int i = 0;
-  for (i = 0; i < N; i++)
-  {
-    if (output_data[i] != data[i])
-    {
-      printf("Fail at %d\n", i);
-      break;
-    }
-  }
-  if (i == N)
-    printf("Pass!\n");
-  return 0;
 }
